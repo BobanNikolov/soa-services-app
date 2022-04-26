@@ -1,3 +1,5 @@
+from enum import Enum
+
 from sqlalchemy import Column, Integer, String, Boolean, Date, ForeignKey
 from sqlalchemy.orm import relationship
 
@@ -10,5 +12,4 @@ class Service(Base):
     name = Column(String, nullable=False)
     date = Column(Date)
     is_done = Column(Boolean)
-    # todo: ask how to implement dto
-    #serviceType = ServiceType
+    serviceType = Column(Enum(ServiceType))

@@ -64,7 +64,7 @@ def update_service(id: int, service_in: ServiceIn, db: Session = Depends(get_db)
     db_service.name = new_db_service.name
     db_service.date = new_db_service.date
     db.commit()
-    # db_service.serviceType = new_db_service.serviceType
+    db_service.serviceType = new_db_service.serviceType
     # db.merge(db_service)
     # db.commit()
 
