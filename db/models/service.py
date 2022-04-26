@@ -9,5 +9,6 @@ class Service(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
     date = Column(Date)
+    is_done = Column(Boolean)
     # todo: ask how to implement dto
-    serviceType = ServiceType
+    #serviceType = ServiceType

@@ -1,3 +1,4 @@
+from operator import and_
 from typing import Generator, List
 
 from sqlalchemy.orm import sessionmaker, Session
@@ -9,6 +10,7 @@ from core.config import settings
 from fastapi import FastAPI, APIRouter, Depends
 from db.base import Base
 import uvicorn
+from datetime import date
 
 
 def create_tables():
@@ -35,7 +37,7 @@ class ServiceInDB(ServiceIn):
 
 @app.post("/services/add", response_model=ServiceOut)
 def create_service(service_in: ServiceIn, db: Session = Depends(get_db)):
-    db_service = ServiceInDB(**service_in.dict())
+    db_service = Service(**service_in.dict())
     db.add(db_service)
     db.commit()
     db.refresh(db_service)
@@ -58,12 +60,13 @@ def read_service(id: int, db: Session = Depends(get_db)):
 @app.put("/services/update/{id}", response_model=ServiceOut)
 def update_service(id: int, service_in: ServiceIn, db: Session = Depends(get_db)):
     db_service = db.query(Service).where(Service.id == id).one()
-    new_db_service = ServiceInDB(**service_in.dict())
+    new_db_service = Service(**service_in.dict())
     db_service.name = new_db_service.name
     db_service.date = new_db_service.date
-    db_service.serviceType = new_db_service.serviceType
-    db.merge(db_service)
     db.commit()
+    # db_service.serviceType = new_db_service.serviceType
+    # db.merge(db_service)
+    # db.commit()
 
 
 @app.delete("/services/delete")
@@ -72,6 +75,18 @@ def delete_service(id: int, db: Session = Depends(get_db)):
     db.delete(db_service)
     db.commit()
 
+
+@app.get("/services/search_available", response_model=List[ServiceOut])
+def read_available_services(date_from: date, date_to: date, db: Session = Depends(get_db)):
+    db_services = db.query(Service).filter(and_(Service.date >= date_from, Service.date <= date_to)).all()
+    return db_services
+
+
+@app.put("/services/done/{id}", response_model=ServiceOut)
+def service_done(id: int, db: Session = Depends(get_db)):
+    db_service = db.query(Service).where(Service.id == id).one()
+    db_service.is_done = True
+    db.commit()
 
 if __name__ == '__main__':
     uvicorn.run(app, host="0.0.0.0", port=8000)
