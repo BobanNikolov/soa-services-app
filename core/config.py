@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 
 from pathlib import Path
 
-env_path = '../variables.env'
+env_path = '../variables.env.local'
 load_dotenv(dotenv_path=env_path)
 
 

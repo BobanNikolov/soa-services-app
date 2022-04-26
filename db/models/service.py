@@ -1,7 +1,4 @@
-from enum import Enum
-
-from sqlalchemy import Column, Integer, String, Boolean, Date, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, Boolean, Date, ForeignKey, Enum
 
 from db.base_class import Base
 from db.models.enumeration.service_type import ServiceType
@@ -12,4 +9,4 @@ class Service(Base):
     name = Column(String, nullable=False)
     date = Column(Date)
     is_done = Column(Boolean)
-    serviceType = Column(Enum(ServiceType))
+    service_type = Column(Enum(ServiceType))

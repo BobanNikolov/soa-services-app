@@ -1,19 +1,21 @@
 from pydantic import BaseModel
 from datetime import date
 
+from db.models.enumeration.service_type import ServiceType
+
 
 class ServiceIn(BaseModel):
     name: str
     date: str
     is_done: bool
-    serviceType: str
+    service_type: str
 
 
 class ServiceOut(BaseModel):
     name: str
     date: date
     is_done: bool
-    serviceType: str
+    service_type: ServiceType
 
     class Config():
         orm_mode = True

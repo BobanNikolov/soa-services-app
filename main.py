@@ -56,7 +56,6 @@ def read_service(id: int, db: Session = Depends(get_db)):
     return db_service
 
 
-# todo: ask if the route is good
 @app.put("/services/update/{id}", response_model=ServiceOut)
 def update_service(id: int, service_in: ServiceIn, db: Session = Depends(get_db)):
     db_service = db.query(Service).where(Service.id == id).one()
@@ -64,9 +63,8 @@ def update_service(id: int, service_in: ServiceIn, db: Session = Depends(get_db)
     db_service.name = new_db_service.name
     db_service.date = new_db_service.date
     db.commit()
-    db_service.serviceType = new_db_service.serviceType
-    # db.merge(db_service)
-    # db.commit()
+    db_service.service_type = new_db_service.service_type
+    return db_service
 
 
 @app.delete("/services/delete")
@@ -75,18 +73,20 @@ def delete_service(id: int, db: Session = Depends(get_db)):
     db.delete(db_service)
     db.commit()
 
-
-@app.get("/services/search_available", response_model=List[ServiceOut])
-def read_available_services(date_from: date, date_to: date, db: Session = Depends(get_db)):
-    db_services = db.query(Service).filter(and_(Service.date >= date_from, Service.date <= date_to)).all()
+# todo: to be fixed
+@app.get("/services/available")
+def read_available_services(db: Session = Depends(get_db)):
+    # db_services = db.query(Service).filter(and_(Service.date >= date(2000,4,22), Service.date <= date(2000, 4,
+    # 24))).all() return db_services
+    db_services = db.query(Service).all()
     return db_services
-
 
 @app.put("/services/done/{id}", response_model=ServiceOut)
 def service_done(id: int, db: Session = Depends(get_db)):
     db_service = db.query(Service).where(Service.id == id).one()
     db_service.is_done = True
     db.commit()
+    return db_service
 
 if __name__ == '__main__':
     uvicorn.run(app, host="0.0.0.0", port=8000)
