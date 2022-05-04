@@ -1,16 +1,14 @@
-from operator import and_
-from typing import Generator, List
+from typing import List, Generator
 
+import uvicorn
+from fastapi import FastAPI, Depends
 from sqlalchemy.orm import sessionmaker, Session
 
-from db.models.response_model.response_model import ServiceOut, ServiceIn
-from db.models.service import Service
-from db.session import engine
 from core.config import settings
-from fastapi import FastAPI, APIRouter, Depends
 from db.base import Base
-import uvicorn
-from datetime import date
+from db.models.response_model.response_model import ServiceOut, ServiceIn
+from db.session import engine
+from repository import service_repository
 
 
 def create_tables():
@@ -31,62 +29,46 @@ def get_db() -> Generator:
         db.close()
 
 
-class ServiceInDB(ServiceIn):
-    pass
-
-
 @app.post("/services/add", response_model=ServiceOut)
 def create_service(service_in: ServiceIn, db: Session = Depends(get_db)):
-    db_service = Service(**service_in.dict())
-    db.add(db_service)
-    db.commit()
-    db.refresh(db_service)
+    db_service = service_repository.create_service(service_in, db)
     return db_service
 
 
 @app.get("/services", response_model=List[ServiceOut])
 def read_services(db: Session = Depends(get_db)):
-    db_services = db.query(Service).all()
+    db_services = service_repository.read_services(db)
     return db_services
 
 
 @app.get("/services/{id}", response_model=ServiceOut)
 def read_service(id: int, db: Session = Depends(get_db)):
-    db_service = db.query(Service).where(Service.id == id).one()
+    db_service = service_repository.read_service(id, db)
     return db_service
 
 
 @app.put("/services/update/{id}", response_model=ServiceOut)
 def update_service(id: int, service_in: ServiceIn, db: Session = Depends(get_db)):
-    db_service = db.query(Service).where(Service.id == id).one()
-    new_db_service = Service(**service_in.dict())
-    db_service.name = new_db_service.name
-    db_service.date = new_db_service.date
-    db.commit()
-    db_service.service_type = new_db_service.service_type
+    db_service = service_repository.update_service(id, service_in, db)
     return db_service
 
 
 @app.delete("/services/delete")
 def delete_service(id: int, db: Session = Depends(get_db)):
-    db_service = db.query(Service).where(Service.id == id).one()
-    db.delete(db_service)
-    db.commit()
+    service_repository.delete_service(id, db)
 
-# todo: to be fixed
-@app.get("/services/available")
-def read_available_services(db: Session = Depends(get_db)):
-    # db_services = db.query(Service).filter(and_(Service.date >= date(2000,4,22), Service.date <= date(2000, 4,
-    # 24))).all() return db_services
-    db_services = db.query(Service).all()
+
+@app.get("/available_services", response_model=List[ServiceOut])
+def read_available_services(date_from: str, date_to: str, db: Session = Depends(get_db)):
+    db_services = service_repository.read_available_services(date_from, date_to, db)
     return db_services
+
 
 @app.put("/services/done/{id}", response_model=ServiceOut)
 def service_done(id: int, db: Session = Depends(get_db)):
-    db_service = db.query(Service).where(Service.id == id).one()
-    db_service.is_done = True
-    db.commit()
+    db_service = service_repository.service_done(id, db)
     return db_service
+
 
 if __name__ == '__main__':
     uvicorn.run(app, host="0.0.0.0", port=8000)
