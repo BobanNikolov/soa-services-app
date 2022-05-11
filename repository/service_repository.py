@@ -30,7 +30,7 @@ def update_service(id: int, service_in: ServiceIn, db):
     return db_service
 
 
-def delete_service(id: int, db):
+def cancel_service(id: int, db):
     db_service = db.query(Service).where(Service.id == id).one()
     db.delete(db_service)
     db.commit()
@@ -39,6 +39,13 @@ def delete_service(id: int, db):
 def read_available_services(date_from: str, date_to: str, db):
     db_services = db.query(Service).filter(and_(Service.date >= date_from, Service.date <= date_to)).all()
     return db_services
+
+
+def check_available_services(date: str, db):
+    db_services = db.query(Service).filter(Service.date == date).all()
+    if db_services.count() == 0:
+        return True
+    return False
 
 
 def service_done(id: int, db):
