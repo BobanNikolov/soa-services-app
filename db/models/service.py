@@ -10,3 +10,4 @@ class Service(Base):
     date = Column(Date)
     is_done = Column(Boolean)
     service_type = Column(Enum(ServiceType))
+    price = Column(Integer)
