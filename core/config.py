@@ -1,9 +1,11 @@
 import os
+
+from dependency_injector import providers
 from dotenv import load_dotenv
 
-from pathlib import Path
+from integration.integrations import UserService, PaymentService, NotificationService, StoreService
 
-env_path = '../variables.env.local'
+env_path = '.././.env.local'
 load_dotenv(dotenv_path=env_path)
 
 
@@ -11,12 +13,16 @@ class Settings:
     PROJECT_NAME: str = "soa-services-app"
     PROJECT_VERSION: str = "1.0.0"
 
-    POSTGRES_USER: str = os.getenv("POSTGRES_USER","services-app")
-    POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD","services-app")
-    POSTGRES_SERVER: str = os.getenv("POSTGRES_SERVER", "localhost")
-    POSTGRES_PORT: str = os.getenv("POSTGRES_PORT", 5432)  # default postgres port is 5432
-    POSTGRES_DB: str = os.getenv("POSTGRES_DB", "services-app")
-    DATABASE_URL = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_SERVER}:{POSTGRES_PORT}/{POSTGRES_DB}"
+    DATABASE_URL = os.getenv("DB_CONNECTION")
+    USER_ENDPOINT = os.getenv("USER_ENDPOINT")
+    STORE_ENDPOINT = os.getenv("STORE_ENDPOINT")
+    PAYMENT_ENDPOINT = os.getenv("PAYMENT_ENDPOINT")
+    NOTIFICATION_ENDPOINT = os.getenv("NOTIFICATION_ENDPOINT")
+
+    userService = providers.Factory(UserService, USER_ENDPOINT)
+    paymentService = providers.Factory(PaymentService, PAYMENT_ENDPOINT)
+    notificationService = providers.Factory(NotificationService, NOTIFICATION_ENDPOINT)
+    storeService = providers.Factory(StoreService, STORE_ENDPOINT)
 
 
 settings = Settings()

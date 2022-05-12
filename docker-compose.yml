@@ -1,0 +1,30 @@
+version: '1'
+services:
+  service-app:
+    container_name: service-app
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/app
+    env_file:
+      - .env.local
+    ports:
+      - 8002:5000
+    depends_on:
+      - services-app-db
+    restart: on-failure
+
+  services-app-db:
+    container_name: services-app-db
+    image: postgres
+    environment:
+      - POSTGRES_USER=services-app
+      - POSTGRES_PASSWORD=services-app
+      - POSTGRES_DB=services-app
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+volumes:
+  postgres-data:

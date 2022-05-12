@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, Date, ForeignKey, Enum
+from sqlalchemy import Column, Integer, String, Boolean, Date, Enum
 
 from db.base_class import Base
 from db.models.enumeration.service_type import ServiceType
@@ -10,3 +10,4 @@ class Service(Base):
     date = Column(Date)
     is_done = Column(Boolean)
     service_type = Column(Enum(ServiceType))
+    price = Column(Integer)
