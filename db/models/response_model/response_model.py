@@ -17,6 +17,7 @@ class ServiceOut(BaseModel):
     date: date
     is_done: bool
     service_type: ServiceType
+    price: int
 
     class Config():
         orm_mode = True

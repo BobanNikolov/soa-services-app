@@ -40,9 +40,9 @@ def book_service(service_in: ServiceIn, db: Session = Depends(get_db),
         raise HTTPException(status_code=401, detail="You need to authenticate first")
 
     if (
-            not userService.user_contains_role(Authorization, "Client") or
-            not userService.user_contains_role(Authorization, "Employee") or
-            not userService.user_contains_role(Authorization, "Admin")
+            not userService.user_contains_role(Authorization, "customer") or
+            not userService.user_contains_role(Authorization, "employee") or
+            not userService.user_contains_role(Authorization, "admin")
     ):
         raise HTTPException(status_code=401, detail="Forbidden access to this endpoint")
     if service_repository.check_available_services(service_in.date, db):
@@ -62,8 +62,8 @@ def read_services(db: Session = Depends(get_db),
         raise HTTPException(status_code=401, detail="You need to authenticate first")
 
     if (
-            not userService.user_contains_role(Authorization, "Employee") or
-            not userService.user_contains_role(Authorization, "Admin")
+            not userService.user_contains_role(Authorization, "employee") or
+            not userService.user_contains_role(Authorization, "admin")
     ):
         raise HTTPException(status_code=401, detail="Forbidden access to this endpoint")
     db_services = service_repository.read_services(db)
@@ -78,8 +78,8 @@ def read_service(id: int, db: Session = Depends(get_db),
         raise HTTPException(status_code=401, detail="You need to authenticate first")
 
     if (
-            not userService.user_contains_role(Authorization, "Employee") or
-            not userService.user_contains_role(Authorization, "Admin")
+            not userService.user_contains_role(Authorization, "employee") or
+            not userService.user_contains_role(Authorization, "admin")
     ):
         raise HTTPException(status_code=401, detail="Forbidden access to this endpoint")
     db_service = service_repository.read_service(id, db)
@@ -94,9 +94,9 @@ def update_service(id: int, service_in: ServiceIn, db: Session = Depends(get_db)
         raise HTTPException(status_code=401, detail="You need to authenticate first")
 
     if (
-            not userService.user_contains_role(Authorization, "Client") or
-            not userService.user_contains_role(Authorization, "Employee") or
-            not userService.user_contains_role(Authorization, "Admin")
+            not userService.user_contains_role(Authorization, "customer") or
+            not userService.user_contains_role(Authorization, "employee") or
+            not userService.user_contains_role(Authorization, "admin")
     ):
         raise HTTPException(status_code=401, detail="Forbidden access to this endpoint")
     if service_repository.check_available_services(service_in.date, db):
@@ -114,9 +114,9 @@ def cancel_service(id: int, db: Session = Depends(get_db),
         raise HTTPException(status_code=401, detail="You need to authenticate first")
 
     if (
-            not userService.user_contains_role(Authorization, "Client") or
-            not userService.user_contains_role(Authorization, "Employee") or
-            not userService.user_contains_role(Authorization, "Admin")
+            not userService.user_contains_role(Authorization, "customer") or
+            not userService.user_contains_role(Authorization, "employee") or
+            not userService.user_contains_role(Authorization, "admin")
     ):
         raise HTTPException(status_code=401, detail="Forbidden access to this endpoint")
     service_repository.cancel_service(id, db)
@@ -130,9 +130,9 @@ def read_available_services(date_from: str, date_to: str, db: Session = Depends(
         raise HTTPException(status_code=401, detail="You need to authenticate first")
 
     if (
-            not userService.user_contains_role(Authorization, "Client") or
-            not userService.user_contains_role(Authorization, "Employee") or
-            not userService.user_contains_role(Authorization, "Admin")
+            not userService.user_contains_role(Authorization, "customer") or
+            not userService.user_contains_role(Authorization, "employee") or
+            not userService.user_contains_role(Authorization, "admin")
     ):
         raise HTTPException(status_code=401, detail="Forbidden access to this endpoint")
     db_services = service_repository.read_available_services(date_from, date_to, db)
@@ -149,16 +149,17 @@ def service_done(id: int, db: Session = Depends(get_db),
         raise HTTPException(status_code=401, detail="You need to authenticate first")
 
     if (
-            not userService.user_contains_role(Authorization, "Client") or
-            not userService.user_contains_role(Authorization, "Employee") or
-            not userService.user_contains_role(Authorization, "Admin")
+            not userService.user_contains_role(Authorization, "customer") or
+            not userService.user_contains_role(Authorization, "employee") or
+            not userService.user_contains_role(Authorization, "admin")
     ):
         raise HTTPException(status_code=401, detail="Forbidden access to this endpoint")
     db_service = service_repository.service_done(id, db)
-    paymentService.make_payment("service")
+    tx_service = "{serviceIds: ["+db_service.id+"]}"
+    paymentService.make_payment(tx_service)
     notificationService.notify()
     return db_service
 
 
 if __name__ == '__main__':
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8002)

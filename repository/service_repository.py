@@ -26,6 +26,7 @@ def update_service(id: int, service_in: ServiceIn, db):
     db_service.name = new_db_service.name
     db_service.date = new_db_service.date
     db_service.service_type = new_db_service.service_type
+    db_service.price = new_db_service.price
     db.commit()
     return db_service
 
