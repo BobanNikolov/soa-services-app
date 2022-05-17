@@ -20,9 +20,10 @@ class PaymentService:
     def __init__(self, endpoint: str):
         self.endpoint = endpoint
 
-    def make_payment(self, txService: str):
+    def make_payment(self, txService: str, jwttoken: str):
         try:
-            response = requests.post(self.endpoint + "api/v1/pay", data={"txService": txService})
+            response = requests.post(self.endpoint + "api/v1/pay", data={"txService": txService},
+                                     headers={"accessToken": jwttoken})
         except:
             raise HTTPException(408, "Cannot reach " + self.endpoint)
         return response.json()
@@ -32,9 +33,9 @@ class NotificationService:
     def __init__(self, endpoint: str):
         self.endpoint = endpoint
 
-    def notify(self):
+    def notify(self, jwttoken: str):
         try:
-            response = requests.get(self.endpoint + "notify")
+            response = requests.get(self.endpoint + "notify", headers={"accessToken": jwttoken})
         except:
             raise HTTPException(408, "Cannot reach " + self.endpoint)
         return response.json()
@@ -44,9 +45,9 @@ class StoreService:
     def __init__(self, endpoint: str):
         self.endpoint = endpoint
 
-    def check_price(self, product_name: str):
+    def check_price(self, product_name: str, jwttoken: str):
         try:
-            response = requests.get(self.endpoint + "products/" + product_name)
+            response = requests.get(self.endpoint + "products/" + product_name, headers={"accessToken": jwttoken})
         except:
             raise HTTPException(408, "Cannot reach " + self.endpoint)
         return response.json()

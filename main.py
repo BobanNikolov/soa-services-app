@@ -46,7 +46,7 @@ def book_service(service_in: ServiceIn, db: Session = Depends(get_db),
     ):
         raise HTTPException(status_code=401, detail="Forbidden access to this endpoint")
     if service_repository.check_available_services(service_in.date, db):
-        product_price = storeService.check_price(service_in.name)
+        product_price = storeService.check_price(service_in.name, Authorization)
         db_service = service_repository.create_service(service_in, db)
         db_service.price = product_price
         return db_service
@@ -156,8 +156,8 @@ def service_done(id: int, db: Session = Depends(get_db),
         raise HTTPException(status_code=401, detail="Forbidden access to this endpoint")
     db_service = service_repository.service_done(id, db)
     tx_service = "{serviceIds: ["+db_service.id+"]}"
-    paymentService.make_payment(tx_service)
-    notificationService.notify()
+    paymentService.make_payment(tx_service, Authorization)
+    notificationService.notify(Authorization)
     return db_service
 
 
